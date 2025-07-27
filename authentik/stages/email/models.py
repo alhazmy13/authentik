@@ -1,12 +1,15 @@
 """email stage models"""
 
+import ssl
+import smtplib
 from os import R_OK, access
 from pathlib import Path
 
 from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
-from django.core.mail.backends.smtp import EmailBackend
+from django.core.mail.backends.smtp import EmailBackend as SMTPBackend
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.views import View
 from rest_framework.serializers import BaseSerializer
@@ -17,6 +20,41 @@ from authentik.lib.config import CONFIG
 from authentik.lib.utils.time import timedelta_string_validator
 
 LOGGER = get_logger()
+
+class EmailBackend(SMTPBackend):
+    def open(self):
+        if self.connection:
+            return False
+
+        connection_class = smtplib.SMTP  # Not SMTP_SSL
+
+        try:
+            self.connection = connection_class(self.host, self.port, timeout=self.timeout)
+            self.connection.ehlo()
+
+            # Start TLS with custom SSL context that disables verification
+            self.connection.starttls(context=self.ssl_context)
+            self.connection.ehlo()
+
+            if self.username and self.password:
+                self.connection.login(self.username, self.password)
+
+            return True
+        except:
+            if self.connection:
+                try:
+                    self.connection.quit()
+                except Exception:
+                    pass
+                self.connection = None
+            raise
+
+    @cached_property
+    def ssl_context(self):
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        return context
 
 
 class EmailTemplates(models.TextChoices):
