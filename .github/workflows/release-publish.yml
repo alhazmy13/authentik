@@ -16,7 +16,7 @@ jobs:
       id-token: write
       attestations: write
     with:
-      image_name: ghcr.io/goauthentik/server,beryju/authentik
+      image_name: ghcr.io/alhazmy13/server,beryju/authentik
       release: true
       registry_dockerhub: true
       registry_ghcr: true
@@ -51,7 +51,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         with:
-          image-name: ghcr.io/goauthentik/${{ matrix.type }},beryju/authentik-${{ matrix.type }}
+          image-name: ghcr.io/alhazmy13/${{ matrix.type }},beryju/authentik-${{ matrix.type }}
       - name: make empty clients
         run: |
           mkdir -p ./gen-ts-api
@@ -179,7 +179,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         with:
-          image-name: ghcr.io/goauthentik/server
+          image-name: ghcr.io/alhazmy13/server
       - name: Get static files from docker image
         run: |
           docker pull ${{ steps.ev.outputs.imageMainName }}

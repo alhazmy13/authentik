@@ -22,7 +22,7 @@ Parameters:
     Description: ElastiCache Redis version
   AuthentikImage:
     Type: String
-    Default: ghcr.io/goauthentik/server
+    Default: ghcr.io/alhazmy13/server
     Description: authentik Docker image
   AuthentikVersion:
     Type: String
